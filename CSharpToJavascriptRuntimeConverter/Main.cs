@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -76,16 +75,16 @@ namespace CSharpToJavascriptRuntimeConverter
                     {
                         case EGenerateOptions.Javascript:
                             sbFinal.AppendLine(JsGenerator.Generate(new[] { type }, options));
-                            // result = JsGenerator.Generate(new[] { type }, options);
                             break;
                         case EGenerateOptions.Ecma6:
                             sbFinal.AppendLine(Ecma6Generator.Generate(new[] { type }, options));
-                            // result = Ecma6Generator.Generate(new[] { type }, options);
                             break;
                         case EGenerateOptions.KnockoutEcma6:
                             sbFinal.AppendLine(Ecma6KnockoutGenerator.Generate(new[] { type }, options));
-                            // result = Ecma6KnockoutGenerator.Generate(new[] { type }, options);
                             break;
+                        default:
+                            throw new Exception(
+                                "Somehow Conversion type is not set or is out of bounds. I have no idea what happened.");
                     }
                 }
 
@@ -94,7 +93,7 @@ namespace CSharpToJavascriptRuntimeConverter
             catch (Exception exception)
             {
                 // Since we presumably should know what we are doing here, we are just showing message from exception
-                // Would be good idea to log this somwhere.
+                // Would be good idea to log this somwhere tho.
                 ShowErrorMessage(exception.Message);
             }
 
