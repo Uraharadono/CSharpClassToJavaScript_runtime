@@ -7,8 +7,11 @@ namespace Utility
     [ExcludeFromCodeCoverage]
     public class PropertyBag
     {
-        public PropertyBag(string typeName, Type typeDefinition, string propertyName, Type propertyType,
-            List<PropertyBagTypeInfo> collectionInnerTypes, 
+        public PropertyBag(string typeName,
+            Type typeDefinition,
+            string propertyName,
+            Type propertyType,
+            List<PropertyBagTypeInfo> collectionInnerTypes,
             TransformablePropertyTypeEnum transformablePropertyType,
             bool hasDefaultValue, object defaultValue)
         {
@@ -39,7 +42,7 @@ namespace Utility
             ReferenceType = 4
         }
     }
-    
+
     [ExcludeFromCodeCoverage]
     public class PropertyBagTypeInfo
     {

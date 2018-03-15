@@ -52,8 +52,6 @@ namespace Utility.Generators
                 //    sb.AppendLine("\tvar i, length;");
                 //}
 
-                sb.AppendLine();
-
                 var propList = type.GroupBy(t => t.PropertyName).Select(t => t.First()).ToList();
                 foreach (var propEntry in propList)
                 {
@@ -76,7 +74,7 @@ namespace Utility.Generators
 
                 if (options.IncludeIsLoadingVar) BuildLoadingVar(sb);
 
-                sb.AppendLine("    }"); // first close constructor parenthesis
+                sb.AppendLine("\t\t}"); // first close constructor parenthesis
 
                 if (options.IncludeUnmapFunctions) BuildUnmapFunction(sb, propList, generationOptions);
 
@@ -124,22 +122,22 @@ namespace Utility.Generators
 
         private static void BuildLoadingVar(StringBuilder sb)
         {
-            sb.AppendLine("\tthis.isLoading = ko.observable(false); ");
+            sb.AppendLine("\t\tthis.isLoading = ko.observable(false); ");
         }
 
         private static void BuildUnmapFunction(StringBuilder sb, List<PropertyBag> properties, JsGeneratorOptions options)
         {
-            sb.AppendLine($" unmap() {{");
-            sb.AppendLine($"\t return {{");
+            sb.AppendLine($"\tunmap() {{");
+            sb.AppendLine($"\t\t return {{");
             foreach (var fileProperty in properties)
             {
                 // Note: I don't see point in creating unmap for anything beside primitive types, so I will leave others out
                 if (fileProperty.TransformablePropertyType == PropertyBag.TransformablePropertyTypeEnum.Primitive)
                 {
-                    sb.AppendLine($"\t\t {Helpers.ToCamelCase(fileProperty.PropertyName, options.CamelCase)}: this.{Helpers.ToCamelCase(fileProperty.PropertyName, options.CamelCase)}()");
+                    sb.AppendLine($"\t\t\t {Helpers.ToCamelCase(fileProperty.PropertyName, options.CamelCase)}: this.{Helpers.ToCamelCase(fileProperty.PropertyName, options.CamelCase)}()");
                 }
             }
-            sb.AppendLine($"\t}}");
+            sb.AppendLine($"\t\t}}");
         }
 
         // ======================= Specific Build Functions =======================
@@ -173,10 +171,7 @@ namespace Utility.Generators
                     $"{options.OutputNamespace} {Helpers.GetName(type.First().TypeName, options.ClassNameConstantsToRemove)} {{");
 
                 sb.AppendLine($"\tconstructor(data) {{");
-
-                sb.AppendLine("\t\tif (!cons) { cons = { }; }");
             }
-
         }
 
         private static void BuildEqualsFunctionForClass(StringBuilder sb, IEnumerable<PropertyBag> propList,
@@ -359,36 +354,37 @@ namespace Utility.Generators
             {
                 sb.AppendLine(
                     propEntry.PropertyType == typeof(string)
-                        ? $"\t{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}: '{propEntry.DefaultValue}',"
-                        : $"\t{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}: {propEntry.DefaultValue},");
+                        ? $"\t\t{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}: '{propEntry.DefaultValue}',"
+                        : $"\t\t{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}: {propEntry.DefaultValue},");
             }
             else if (propEntry.HasDefaultValue)
             {
+                // Todo: Check what to do with this as well
                 var writtenValue = propEntry.DefaultValue is bool
                     ? propEntry.DefaultValue.ToString().ToLower()
                     : propEntry.DefaultValue;
                 sb.AppendLine(
-                    $"\tif (!data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}) {{");
+                    $"\t\tif (!data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}) {{");
                 sb.AppendLine(
                     propEntry.PropertyType == typeof(string)
-                        ? $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = '{writtenValue}';"
-                        : $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = {writtenValue};");
-                sb.AppendLine("\t} else {");
+                        ? $"\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = '{writtenValue}';"
+                        : $"\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = {writtenValue};");
+                sb.AppendLine("\t\t} else {");
                 sb.AppendLine(
-                    $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)};");
-                sb.AppendLine("\t}");
+                    $"\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)};");
+                sb.AppendLine("\t\t}");
             }
             else
             {
                 sb.AppendLine(
-                    $"\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)};");
+                    $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = ko.observable(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)});");
             }
         }
 
         private static void BuildObjectProperty(StringBuilder sb, PropertyBag propEntry, JsGeneratorOptions options)
         {
-
-            sb.AppendLine($"\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = new {propEntry.PropertyName}(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)});");
+            sb.AppendLine();
+            sb.AppendLine($"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = new {propEntry.PropertyName}(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)});");
 
             //sb.AppendLine($"\tif (data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}) {{");
             //sb.AppendLine(
@@ -409,15 +405,18 @@ namespace Utility.Generators
             //sb.AppendLine(
             //    $"\t\tfor (i = 0, length = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.length; i < length; i++) {{");
 
+            sb.AppendLine();
             var collectionType = propEntry.CollectionInnerTypes.First();
 
             if (!collectionType.IsPrimitiveType)
             {
                 sb.AppendLine(
                     // $"\tconst mapped{propEntry.PropertyName} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.map(s => new {propEntry.PropertyName}(s));");
-                    $"\tconst mapped{propEntry.PropertyName} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.map(s => new {Helpers.GetName(propEntry.PropertyName, options.ClassNameConstantsToRemove)}(s));");
+                    $"\t\tconst mapped{propEntry.PropertyName} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.map(s => new { Helpers.GetName(propEntry.PropertyType.Name, options.ClassNameConstantsToRemove)}(s));");
+                //{Helpers.GetName(propEntry.PropertyType.Name, options.ClassNameConstantsToRemove)}(s));");
+
                 sb.AppendLine(
-                    $"\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = ko.observableArray(mapped{propEntry.PropertyName})");
+                    $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = ko.observableArray(mapped{propEntry.PropertyName})");
 
 
                 //sb.AppendLine(
@@ -433,7 +432,7 @@ namespace Utility.Generators
             else
             {
                 sb.AppendLine(
-                    $"\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = ko.observableArray(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)})");
+                    $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = ko.observableArray(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)})");
             }
             //sb.AppendLine("\t\t}");
             //sb.AppendLine("\t}");

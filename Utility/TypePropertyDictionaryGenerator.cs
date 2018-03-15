@@ -6,7 +6,8 @@ namespace Utility
 {
     public static class TypePropertyDictionaryGenerator
     {
-        public static IEnumerable<PropertyBag> GetPropertyDictionaryForTypeGeneration(IEnumerable<Type> types,
+        public static IEnumerable<PropertyBag> GetPropertyDictionaryForTypeGeneration(
+            IEnumerable<Type> types,
             JsGeneratorOptions generatorOptions,
             List<PropertyBag> propertyTypeCollection = null)
         {
@@ -15,7 +16,6 @@ namespace Utility
             {
                 propertyTypeCollection = new List<PropertyBag>();
             }
-
             
             foreach (var type in types)
             {
