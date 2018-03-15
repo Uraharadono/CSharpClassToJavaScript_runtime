@@ -412,7 +412,7 @@ namespace Utility.Generators
             {
                 sb.AppendLine(
                     // $"\tconst mapped{propEntry.PropertyName} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.map(s => new {propEntry.PropertyName}(s));");
-                    $"\t\tconst mapped{propEntry.PropertyName} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.map(s => new { Helpers.GetName(propEntry.PropertyType.Name, options.ClassNameConstantsToRemove)}(s));");
+                    $"\t\tconst mapped{propEntry.PropertyName} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.map(s => new { Helpers.GetName(propEntry.PropertyType.GetGenericArguments().Single().Name, options.ClassNameConstantsToRemove)}(s));");
                 //{Helpers.GetName(propEntry.PropertyType.Name, options.ClassNameConstantsToRemove)}(s));");
 
                 sb.AppendLine(

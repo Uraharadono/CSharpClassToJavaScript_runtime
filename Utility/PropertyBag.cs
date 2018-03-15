@@ -25,7 +25,7 @@ namespace Utility
             TypeDefinition = typeDefinition;
         }
 
-        public string TypeName { get; set; }
+        public string TypeName { get; set; } // this is actually name of the class this property is in, not name of the property type
         public string PropertyName { get; set; }
         public Type PropertyType { get; set; }
         public TransformablePropertyTypeEnum TransformablePropertyType { get; set; }
