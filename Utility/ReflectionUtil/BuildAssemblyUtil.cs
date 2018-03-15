@@ -17,7 +17,7 @@ namespace Utility.ReflectionUtil
     {
         public static Assembly BuildAssembly(string code)
         {
-            Microsoft.CSharp.CSharpCodeProvider provider = new CSharpCodeProvider();
+            CSharpCodeProvider provider = new CSharpCodeProvider();
             ICodeCompiler compiler = provider.CreateCompiler();
             CompilerParameters compilerparams = new CompilerParameters();
             compilerparams.GenerateExecutable = false;
