@@ -4,11 +4,11 @@ namespace Utility.TestClasses
 {
     public class AddressInformation
     {
-        public Dictionary<int,string> MojDictionary { get; set; }
-        public ETestEnum EnumVar { get; set; }
-        public string Name { get; set; }
-        public string Address { get; set; }
-        public int ZipCode { get; set; }
+        //public Dictionary<int,string> MojDictionary { get; set; }
+        //public ETestEnum EnumVar { get; set; }
+        //public string Name { get; set; }
+        //public string Address { get; set; }
+        //public int ZipCode { get; set; }
         public OwnerInformation Owner { get; set; }
         public List<Feature> Features { get; set; }
         public List<string> Tags { get; set; }

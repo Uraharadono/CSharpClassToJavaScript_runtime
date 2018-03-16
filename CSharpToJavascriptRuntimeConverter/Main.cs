@@ -60,14 +60,16 @@ namespace CSharpToJavascriptRuntimeConverter
 
                 // Create compiler and execute content of file
                 Assembly asm = BuildAssemblyUtil.BuildAssembly(fileContent);
+
                 // Get all types from assemly using reflection
-                List<Type> types = BuildAssemblyUtil.GetExportedTypes(asm);
+                List<Type> rawTypes = BuildAssemblyUtil.GetExportedTypes(asm);
+
+                // Filter types, and take only parent ones (the ones that are not referenced in parent, and standalone one)
+                // If referenced children will be generated automatically, so no need to duplicate stuff.
+                List<Type> types = BuildAssemblyUtil.FilterExportedTypes(rawTypes);
 
                 // Finally generate
                 StringBuilder sbFinal = new StringBuilder();
-
-                // Todo: For now we are going trought all types in assemly and generating javascript equvalent to them
-                // we ussualy encount a lot of duplicate code like this, so it would be good idea to take a look at this more
                 foreach (var type in types)
                 {
                     switch (options.ConversionType)

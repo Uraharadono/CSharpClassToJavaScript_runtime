@@ -47,5 +47,42 @@ namespace Utility.ReflectionUtil
             return asm.ExportedTypes.ToList();
         }
 
+        public static List<Type> FilterExportedTypes(List<Type> rawTypes)
+        {
+            List<Type> retList = new List<Type>();
+
+            foreach (var type in rawTypes)
+            {
+                List<Type> otherTypes = rawTypes.Where(s => s != type).ToList();
+
+                var passedTest = true;
+                foreach (var otherTypeItem in otherTypes)
+                {
+                    // Get all of the properties in this class
+                    List<PropertyInfo> decalredProps = otherTypeItem.GetTypeInfo().DeclaredProperties.ToList();
+
+                    foreach (var decalredProp in decalredProps)
+                    {
+                        // if (decalredProp.Name == type.Name)
+                        // I can't get property type name like this, cause I get var name actually, not property name
+                        //   Owner            -     OwnerInformation
+
+                        string propertyTypeName = decalredProp.PropertyType.IsGenericType
+                            ? decalredProp.PropertyType.GetGenericArguments().Single().Name
+                            : decalredProp.PropertyType.Name;
+
+                        if (propertyTypeName == type.Name)
+                        {
+                            passedTest = false;
+                        }
+                    }
+                }
+                // Only if type passed all of the tests, then we insert it into return list
+                if (passedTest)
+                    retList.Add(type);
+            }
+
+            return retList;
+        }
     }
 }
