@@ -70,7 +70,6 @@ namespace CSharpToJavascriptRuntimeConverter
                 // we ussualy encount a lot of duplicate code like this, so it would be good idea to take a look at this more
                 foreach (var type in types)
                 {
-                    // string result = null;
                     switch (options.ConversionType)
                     {
                         case EGenerateOptions.Javascript:
@@ -96,8 +95,6 @@ namespace CSharpToJavascriptRuntimeConverter
                 // Would be good idea to log this somwhere tho.
                 ShowErrorMessage(exception.Message);
             }
-
-
         }
 
         private JsGeneratorOptions GetOptions()
