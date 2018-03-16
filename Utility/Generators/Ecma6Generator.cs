@@ -14,7 +14,7 @@ namespace Utility.Generators
             typeof(int),
             typeof(string),
             typeof(Enum)
-        }; 
+        };
 
         public static string Generate(IEnumerable<Type> typesToGenerate, JsGeneratorOptions generatorOptions = null)
         {
@@ -28,10 +28,10 @@ namespace Utility.Generators
             return js;
         }
 
-        static string GenerateJs(IEnumerable<PropertyBag> propertyCollection, JsGeneratorOptions generationOptions)
+        private static string GenerateJs(IEnumerable<PropertyBag> propertyCollection, JsGeneratorOptions generationOptions)
         {
             var options = generationOptions;
-            
+
             var sbOut = new StringBuilder();
 
             foreach (var type in propertyCollection.GroupBy(r => r.TypeName))
@@ -118,9 +118,9 @@ namespace Utility.Generators
                         p.TransformablePropertyType == PropertyBag.TransformablePropertyTypeEnum.ReferenceType))
             {
                 sb.AppendLine(
-                    $"{options.OutputNamespace}.{Helpers.GetName(type.First().TypeName, options.ClassNameConstantsToRemove)} = function (cons, overrideObj) {{");
+                    $"{options.OutputNamespace}.{Helpers.GetName(type.First().TypeName, options.ClassNameConstantsToRemove)} = function (data, overrideObj) {{");
                 sb.AppendLine("\tif (!overrideObj) { overrideObj = { }; }");
-                sb.AppendLine("\tif (!cons) { cons = { }; }");
+                sb.AppendLine("\tif (!data) { data = { }; }");
             }
             else if (type.First().TypeDefinition.IsEnum)
             {
@@ -130,11 +130,11 @@ namespace Utility.Generators
             else
             {
                 sb.AppendLine(
-                    $"{options.OutputNamespace}.{Helpers.GetName(type.First().TypeName, options.ClassNameConstantsToRemove)} = function (cons) {{");
+                    $"{options.OutputNamespace}.{Helpers.GetName(type.First().TypeName, options.ClassNameConstantsToRemove)} = function (data) {{");
 
-                sb.AppendLine("\tif (!cons) { cons = { }; }");
+                sb.AppendLine("\tif (!data) { data = { }; }");
             }
-            
+
         }
 
         private static void BuildEqualsFunctionForClass(StringBuilder sb, IEnumerable<PropertyBag> propList,
@@ -176,7 +176,7 @@ namespace Utility.Generators
                         }
                         sb.AppendLine($"\t\t\t}}");
                         sb.AppendLine($"\t\t}}");
-                        
+
                         break;
                     case PropertyBag.TransformablePropertyTypeEnum.DictionaryType:
                         sb.AppendLine(
@@ -326,20 +326,20 @@ namespace Utility.Generators
                     ? propEntry.DefaultValue.ToString().ToLower()
                     : propEntry.DefaultValue;
                 sb.AppendLine(
-                    $"\tif (!cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}) {{");
+                    $"\tif (!data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}) {{");
                 sb.AppendLine(
                     propEntry.PropertyType == typeof(string)
                         ? $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = '{writtenValue}';"
                         : $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = {writtenValue};");
                 sb.AppendLine("\t} else {");
                 sb.AppendLine(
-                    $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)};");
+                    $"\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)};");
                 sb.AppendLine("\t}");
             }
             else
             {
                 sb.AppendLine(
-                    $"\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)};");
+                    $"\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)};");
             }
         }
 
@@ -347,14 +347,14 @@ namespace Utility.Generators
         {
 
             sb.AppendLine($"\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = null;");
-            sb.AppendLine($"\tif (cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}) {{");
+            sb.AppendLine($"\tif (data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}) {{");
             sb.AppendLine(
                 $"\t\tif (!overrideObj.{Helpers.GetName(propEntry.PropertyType.Name, options.ClassNameConstantsToRemove)}) {{");
             sb.AppendLine(
-                $"\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = new {options.OutputNamespace}.{Helpers.GetName(propEntry.PropertyType.Name, options.ClassNameConstantsToRemove)}(cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)});");
+                $"\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = new {options.OutputNamespace}.{Helpers.GetName(propEntry.PropertyType.Name, options.ClassNameConstantsToRemove)}(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)});");
             sb.AppendLine("\t\t} else {");
             sb.AppendLine(
-                $"\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = new overrideObj.{Helpers.GetName(propEntry.PropertyType.Name, options.ClassNameConstantsToRemove)}(cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}, overrideObj);");
+                $"\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = new overrideObj.{Helpers.GetName(propEntry.PropertyType.Name, options.ClassNameConstantsToRemove)}(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}, overrideObj);");
 
             sb.AppendLine("\t\t}");
             sb.AppendLine("\t}");
@@ -362,10 +362,10 @@ namespace Utility.Generators
 
         private static void BuildArrayProperty(StringBuilder sb, PropertyBag propEntry, JsGeneratorOptions options)
         {
-            sb.AppendLine(string.Format("\tthis.{0} = new Array(cons.{0} == null ? 0 : cons.{1}.length );", Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase), Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)));
-            sb.AppendLine($"\tif(cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} != null) {{");
+            sb.AppendLine(string.Format("\tthis.{0} = new Array(data.{0} == null ? 0 : data.{1}.length );", Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase), Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)));
+            sb.AppendLine($"\tif(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} != null) {{");
             sb.AppendLine(
-                $"\t\tfor (i = 0, length = cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.length; i < length; i++) {{");
+                $"\t\tfor (i = 0, length = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.length; i < length; i++) {{");
 
             var collectionType = propEntry.CollectionInnerTypes.First();
 
@@ -374,17 +374,17 @@ namespace Utility.Generators
                 sb.AppendLine(
                     $"\t\t\tif (!overrideObj.{Helpers.GetName(collectionType.Type.Name, options.ClassNameConstantsToRemove)}) {{");
                 sb.AppendLine(
-                    $"\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i] = new {options.OutputNamespace}.{Helpers.GetName(collectionType.Type.Name, options.ClassNameConstantsToRemove)}(cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i]);");
+                    $"\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i] = new {options.OutputNamespace}.{Helpers.GetName(collectionType.Type.Name, options.ClassNameConstantsToRemove)}(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i]);");
                 sb.AppendLine("\t\t\t} else {");
                 sb.AppendLine(
-                    $"\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i] = new overrideObj.{Helpers.GetName(collectionType.Type.Name, options.ClassNameConstantsToRemove)}(cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i], overrideObj);");
+                    $"\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i] = new overrideObj.{Helpers.GetName(collectionType.Type.Name, options.ClassNameConstantsToRemove)}(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i], overrideObj);");
 
                 sb.AppendLine("\t\t\t}");
             }
             else
             {
                 sb.AppendLine(
-                    $"\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i] = cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i];");
+                    $"\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i] = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[i];");
             }
             sb.AppendLine("\t\t}");
             sb.AppendLine("\t}");
@@ -393,11 +393,11 @@ namespace Utility.Generators
         private static void BuildDictionaryProperty(StringBuilder sb, PropertyBag propEntry, JsGeneratorOptions options)
         {
             sb.AppendLine($"\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} = {{}};");
-            sb.AppendLine($"\tif(cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} != null) {{");
+            sb.AppendLine($"\tif(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)} != null) {{");
             sb.AppendLine(
-                $"\t\tfor (var key in cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}) {{");
+                $"\t\tfor (var key in data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}) {{");
             sb.AppendLine(
-                $"\t\t\tif (cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.hasOwnProperty(key)) {{");
+                $"\t\t\tif (data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}.hasOwnProperty(key)) {{");
 
             var keyType = propEntry.CollectionInnerTypes.First(p => p.IsDictionaryKey);
             if (!AllowedDictionaryKeyTypes.Contains(keyType.Type))
@@ -412,17 +412,17 @@ namespace Utility.Generators
                 sb.AppendLine(
                     $"\t\t\t\tif (!overrideObj.{Helpers.GetName(valueType.Type.Name, options.ClassNameConstantsToRemove)}) {{");
                 sb.AppendLine(
-                    $"\t\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key] = new {options.OutputNamespace}.{Helpers.GetName(valueType.Type.Name, options.ClassNameConstantsToRemove)}(cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key]);");
+                    $"\t\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key] = new {options.OutputNamespace}.{Helpers.GetName(valueType.Type.Name, options.ClassNameConstantsToRemove)}(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key]);");
                 sb.AppendLine("\t\t\t\t} else {");
                 sb.AppendLine(
-                    $"\t\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key] = new overrideObj.{Helpers.GetName(valueType.Type.Name, options.ClassNameConstantsToRemove)}(cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key], overrideObj);");
+                    $"\t\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key] = new overrideObj.{Helpers.GetName(valueType.Type.Name, options.ClassNameConstantsToRemove)}(data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key], overrideObj);");
 
                 sb.AppendLine("\t\t\t\t}");
             }
             else
             {
                 sb.AppendLine(
-                    $"\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key] = cons.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key];");
+                    $"\t\t\t\tthis.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key] = data.{Helpers.ToCamelCase(propEntry.PropertyName, options.CamelCase)}[key];");
             }
             sb.AppendLine("\t\t\t}");
             sb.AppendLine("\t\t}");
