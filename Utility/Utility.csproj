@@ -56,6 +56,7 @@
     <Compile Include="PropertyBag.cs" />
     <Compile Include="ReflectionUtil\BuildAssemblyUtil.cs" />
     <Compile Include="TestClasses\AddressInformation.cs" />
+    <Compile Include="TestClasses\AddressInformationPoor.cs" />
     <Compile Include="TypePropertyDictionaryGenerator.cs" />
   </ItemGroup>
   <ItemGroup />

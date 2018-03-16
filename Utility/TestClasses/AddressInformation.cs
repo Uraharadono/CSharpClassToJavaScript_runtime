@@ -4,6 +4,8 @@ namespace Utility.TestClasses
 {
     public class AddressInformation
     {
+        public Dictionary<int,string> MojDictionary { get; set; }
+        public ETestEnum EnumVar { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
         public int ZipCode { get; set; }
@@ -23,6 +25,13 @@ namespace Utility.TestClasses
     {
         public string Name { get; set; }
         public double Value { get; set; }
+    }
+
+    public enum ETestEnum
+    {
+        Option1 = 0,
+        Option2 = 1,
+        Option3 = 2
     }
 
 }
