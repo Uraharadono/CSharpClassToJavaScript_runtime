@@ -1,5 +1,6 @@
 ﻿/*
- * Idea taken from: https://www.codeproject.com/Articles/9019/Compiling-and-Executing-Code-at-Runtime
+ * Idea taken from: https://stackoverflow.com/questions/8018417/how-to-load-a-class-from-a-cs-file
+ * Detailed: https://www.codeproject.com/Articles/9019/Compiling-and-Executing-Code-at-Runtime
  * More explanation on: https://www.codeproject.com/Articles/12499/Run-Time-Code-Generation-I-Compile-C-Code-using-Mi
  */
 
