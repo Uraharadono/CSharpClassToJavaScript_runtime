@@ -59,7 +59,7 @@ namespace CSharpToJavascriptRuntimeConverter
                 var options = GetOptions();
 
                 // Create compiler and execute content of file
-                Assembly asm = BuildAssemblyUtil.BuildAssembly(fileContent);
+                Assembly asm = BuildAssemblyUtil.CompileCode(fileContent);
 
                 // Get all types from assemly using reflection
                 List<Type> rawTypes = BuildAssemblyUtil.GetExportedTypes(asm);

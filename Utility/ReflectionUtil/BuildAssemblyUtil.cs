@@ -1,7 +1,12 @@
 ﻿/*
+ * References for BuildAssembly method with "ICodeCompiler"
  * Idea taken from: https://stackoverflow.com/questions/8018417/how-to-load-a-class-from-a-cs-file
  * Detailed: https://www.codeproject.com/Articles/9019/Compiling-and-Executing-Code-at-Runtime
  * More explanation on: https://www.codeproject.com/Articles/12499/Run-Time-Code-Generation-I-Compile-C-Code-using-Mi
+ *
+ * References for BuildAssembly method with "CodeDomProvider"
+ * https://msdn.microsoft.com/en-us/library/system.codedom.compiler.codedomprovider(v=vs.110).aspx?cs-save-lang=1&cs-lang=csharp#code-snippet-2
+ * search for: CodeCompile method
  */
 
 using System;
@@ -16,6 +21,8 @@ namespace Utility.ReflectionUtil
 {
     public static class BuildAssemblyUtil
     {
+        // Should probably deprecate this, but a lot of effort went into making it
+        // I solemly refuse to do so :D
         public static Assembly BuildAssembly(string code)
         {
             CSharpCodeProvider provider = new CSharpCodeProvider();
@@ -25,6 +32,32 @@ namespace Utility.ReflectionUtil
             compilerparams.GenerateInMemory = true;
             CompilerResults results =
                 compiler.CompileAssemblyFromSource(compilerparams, code);
+            if (results.Errors.HasErrors)
+            {
+                StringBuilder errors = new StringBuilder("Compiler Errors :\r\n");
+                foreach (CompilerError error in results.Errors)
+                {
+                    errors.AppendFormat("Line {0},{1}\t: {2}\n",
+                        error.Line, error.Column, error.ErrorText);
+                }
+                throw new Exception(errors.ToString());
+            }
+            return results.CompiledAssembly;
+        }
+
+        // You should probably use this method for everything else
+        public static Assembly CompileCode(String sourceFile)
+        {
+            CodeDomProvider provider = new CSharpCodeProvider();
+            CompilerParameters compilerparams = new CompilerParameters();
+            compilerparams.GenerateExecutable = false;
+            compilerparams.GenerateInMemory = true;
+
+            // Invoke compilation.
+            // CompilerResults results = provider.CompileAssemblyFromFile(compilerparams, sourceFile); // should have used this, but it's late, 2 late now :'(
+            CompilerResults results = provider.CompileAssemblyFromSource(compilerparams, sourceFile);
+
+            // Return the results of compilation.
             if (results.Errors.HasErrors)
             {
                 StringBuilder errors = new StringBuilder("Compiler Errors :\r\n");
@@ -68,7 +101,9 @@ namespace Utility.ReflectionUtil
                         // I can't get property type name like this, cause I get var name actually, not property name
                         //   Owner            -     OwnerInformation
 
-                        string propertyTypeName = decalredProp.PropertyType.IsGenericType
+                        // Have to check if value is generic type e.g. List<T> and have to check if it isn't Dictionary cause Dictionary is
+                        // Seen as T, but contains 2 primitive values, which doesn't get me
+                        string propertyTypeName = decalredProp.PropertyType.IsGenericType && decalredProp.PropertyType.GetGenericTypeDefinition() != typeof(Dictionary<,>)
                             ? decalredProp.PropertyType.GetGenericArguments().Single().Name
                             : decalredProp.PropertyType.Name;
 
