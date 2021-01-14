@@ -22,7 +22,7 @@ namespace Utility.ReflectionUtil
     public static class BuildAssemblyUtil
     {
         // Should probably deprecate this, but a lot of effort went into making it
-        // I solemly refuse to do so :D
+        // I solemnly refuse to do so :D
         public static Assembly BuildAssembly(string code)
         {
             CSharpCodeProvider provider = new CSharpCodeProvider();
@@ -49,13 +49,16 @@ namespace Utility.ReflectionUtil
         public static Assembly CompileCode(String sourceFile)
         {
             CodeDomProvider provider = new CSharpCodeProvider();
-            CompilerParameters compilerparams = new CompilerParameters();
-            compilerparams.GenerateExecutable = false;
-            compilerparams.GenerateInMemory = true;
+            CompilerParameters compilerParams = new CompilerParameters();
+            compilerParams.GenerateExecutable = false;
+            compilerParams.GenerateInMemory = true;
+
+            // Add dll's here
+            compilerParams.ReferencedAssemblies.Add("Utility.dll");
 
             // Invoke compilation.
-            // CompilerResults results = provider.CompileAssemblyFromFile(compilerparams, sourceFile); // should have used this, but it's late, 2 late now :'(
-            CompilerResults results = provider.CompileAssemblyFromSource(compilerparams, sourceFile);
+            // CompilerResults results = provider.CompileAssemblyFromFile(compilerParams, sourceFile); // should have used this, but it's late, 2 late now :'(
+            CompilerResults results = provider.CompileAssemblyFromSource(compilerParams, sourceFile);
 
             // Return the results of compilation.
             if (results.Errors.HasErrors)
@@ -89,13 +92,13 @@ namespace Utility.ReflectionUtil
             {
                 List<Type> otherTypes = rawTypes.Where(s => s != type).ToList();
 
-                var passedTest = true;
-                foreach (var otherTypeItem in otherTypes)
+                bool passedTest = true;
+                foreach (Type otherTypeItem in otherTypes)
                 {
                     // Get all of the properties in this class
                     List<PropertyInfo> decalredProps = otherTypeItem.GetTypeInfo().DeclaredProperties.ToList();
 
-                    foreach (var decalredProp in decalredProps)
+                    foreach (PropertyInfo decalredProp in decalredProps)
                     {
                         // if (decalredProp.Name == type.Name)
                         // I can't get property type name like this, cause I get var name actually, not property name

@@ -44,7 +44,7 @@ namespace CSharpToJavascriptRuntimeConverter
 
         private void btnGenerate_Click(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(filePath))
+            if (string.IsNullOrEmpty(filePath))
             {
                 ShowFileMissingErrorMessage();
                 return;
@@ -56,12 +56,12 @@ namespace CSharpToJavascriptRuntimeConverter
                 string fileContent = FileContentUtil.GetFileContent(filePath);
 
                 // Get option values for generator options
-                var options = GetOptions();
+                JsGeneratorOptions options = GetOptions();
 
                 // Create compiler and execute content of file
                 Assembly asm = BuildAssemblyUtil.CompileCode(fileContent);
 
-                // Get all types from assemly using reflection
+                // Get all types from assembly using reflection
                 List<Type> rawTypes = BuildAssemblyUtil.GetExportedTypes(asm);
 
                 // Filter types, and take only parent ones (the ones that are not referenced in parent, and standalone one)
@@ -70,7 +70,7 @@ namespace CSharpToJavascriptRuntimeConverter
 
                 // Finally generate
                 StringBuilder sbFinal = new StringBuilder();
-                foreach (var type in types)
+                foreach (Type type in types)
                 {
                     switch (options.ConversionType)
                     {
@@ -94,7 +94,7 @@ namespace CSharpToJavascriptRuntimeConverter
             catch (Exception exception)
             {
                 // Since we presumably should know what we are doing here, we are just showing message from exception
-                // Would be good idea to log this somwhere tho.
+                // Would be good idea to log this somewhere tho.
                 ShowErrorMessage(exception.Message);
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Utility
 {
@@ -17,13 +18,13 @@ namespace Utility
                 propertyTypeCollection = new List<PropertyBag>();
             }
             
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 if (type.IsEnum)
                 {
-                    var getVals = type.GetEnumNames();
-                    var typeName = type.Name;
-                    foreach (var enumVal in getVals)
+                    string[] getVals = type.GetEnumNames();
+                    string typeName = type.Name;
+                    foreach (string enumVal in getVals)
                     {
                         if (generatorOptions.TreatEnumsAsStrings)
                         {
@@ -32,7 +33,7 @@ namespace Utility
                         }
                         else
                         {
-                            var trueVal = Convert.ChangeType(Enum.Parse(type, enumVal), type.GetEnumUnderlyingType());
+                            object trueVal = Convert.ChangeType(Enum.Parse(type, enumVal), type.GetEnumUnderlyingType());
                             propertyTypeCollection.Add(new PropertyBag(typeName, type, enumVal, type.GetEnumUnderlyingType(),
                                 null, PropertyBag.TransformablePropertyTypeEnum.Primitive, true, trueVal));
                         }
@@ -40,21 +41,21 @@ namespace Utility
                 }
                 else
                 {
-                    var props = type.GetProperties();
-                    var typeName = type.Name;
-                    foreach (var prop in props)
+                    PropertyInfo[] props = type.GetProperties();
+                    string typeName = type.Name;
+                    foreach (PropertyInfo prop in props)
                     {
                         if (!Helpers.ShouldGenerateMember(prop, generatorOptions)) continue;
 
-                        var propertyName = Helpers.GetPropertyName(prop, generatorOptions);
-                        var propertyType = prop.PropertyType;
+                        string propertyName = Helpers.GetPropertyName(prop, generatorOptions);
+                        Type propertyType = prop.PropertyType;
 
                         if (!Helpers.IsPrimitive(propertyType))
                         {
                             if (Helpers.IsCollectionType(propertyType))
                             {
-                                var collectionInnerTypes = GetCollectionInnerTypes(propertyType);
-                                var isDictionaryType = Helpers.IsDictionaryType(propertyType);
+                                List<PropertyBagTypeInfo> collectionInnerTypes = GetCollectionInnerTypes(propertyType);
+                                bool isDictionaryType = Helpers.IsDictionaryType(propertyType);
 
                                 propertyTypeCollection.Add(new PropertyBag(typeName, type, propertyName, propertyType,
                                     collectionInnerTypes, isDictionaryType
@@ -64,9 +65,9 @@ namespace Utility
                                 //if primitive, no need to reflect type
                                 if (collectionInnerTypes.All(p => p.IsPrimitiveType)) continue;
 
-                                foreach (var collectionInnerType in collectionInnerTypes.Where(p => !p.IsPrimitiveType))
+                                foreach (PropertyBagTypeInfo collectionInnerType in collectionInnerTypes.Where(p => !p.IsPrimitiveType))
                                 {
-                                    var innerTypeName = collectionInnerType.Type.Name;
+                                    string innerTypeName = collectionInnerType.Type.Name;
                                     if (propertyTypeCollection.All(p => p.TypeName != innerTypeName))
                                     {
                                         GetPropertyDictionaryForTypeGeneration(new[] {collectionInnerType.Type},
@@ -88,10 +89,10 @@ namespace Utility
                         }
                         else
                         {
-                            var hasDefaultValue = Helpers.HasDefaultValue(prop, generatorOptions);
+                            bool hasDefaultValue = Helpers.HasDefaultValue(prop, generatorOptions);
                             if (hasDefaultValue)
                             {
-                                var val = Helpers.ReadDefaultValueFromAttribute(prop);
+                                object val = Helpers.ReadDefaultValueFromAttribute(prop);
                                 propertyTypeCollection.Add(new PropertyBag(typeName, type, propertyName, propertyType,
                                     null, PropertyBag.TransformablePropertyTypeEnum.Primitive, true, val));
                             }

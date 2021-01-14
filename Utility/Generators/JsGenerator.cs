@@ -42,7 +42,7 @@ namespace Utility.Generators
 
                 BuildClassConstructor(type, sb, options);
 
-                //initialize array variables if any are present in this type
+                // initialize array variables if any are present in this type
                 if (
                     type.Any(
                         p =>
@@ -149,7 +149,7 @@ namespace Utility.Generators
         private static void BuildEqualsFunctionForClass(StringBuilder sb, IEnumerable<PropertyBag> propList,
             JsGeneratorOptions options)
         {
-            //Generate an equals function for two objects
+            // Generate an equals function for two objects
             sb.AppendLine("\tthis.$equals = function (compareObj) {");
             sb.AppendLine("\t\tif (!compareObj) { return false; }");
             foreach (var propEntry in propList)
@@ -246,7 +246,7 @@ namespace Utility.Generators
         private static void BuildMergeFunctionForClass(StringBuilder sb, IEnumerable<PropertyBag> propList,
                     JsGeneratorOptions options)
         {
-            //Generate a merge function to merge two objects
+            // Generate a merge function to merge two objects
             sb.AppendLine("\tthis.$merge = function (mergeObj) {");
             sb.AppendLine("\t\tif (!mergeObj) { mergeObj = { }; }");
             foreach (var propEntry in propList)

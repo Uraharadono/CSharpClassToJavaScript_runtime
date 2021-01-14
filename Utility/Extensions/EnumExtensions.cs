@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 
 namespace Utility.Extensions
 {
@@ -19,19 +20,19 @@ namespace Utility.Extensions
 
         public static string GetDisplayNameOrDescription(this Enum value)
         {
-            var field = value.GetType().GetField(value.ToString());
+            FieldInfo field = value.GetType().GetField(value.ToString());
             if (field == null)
                 return "";
 
-            var dna = Attribute.GetCustomAttribute(field, typeof(DisplayNameAttribute)) as DisplayNameAttribute;
+            DisplayNameAttribute dna = Attribute.GetCustomAttribute(field, typeof(DisplayNameAttribute)) as DisplayNameAttribute;
             if (dna != null)
                 return dna.DisplayName;
 
-            var da = Attribute.GetCustomAttribute(field, typeof(DisplayAttribute)) as DisplayAttribute;
+            DisplayAttribute da = Attribute.GetCustomAttribute(field, typeof(DisplayAttribute)) as DisplayAttribute;
             if (da != null)
                 return da.Name;
 
-            var desca = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
+            DescriptionAttribute desca = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
             return desca == null ? value.ToString() : desca.Description;
         }
     }

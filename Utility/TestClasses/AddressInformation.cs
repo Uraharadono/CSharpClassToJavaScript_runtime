@@ -33,5 +33,4 @@ namespace Utility.TestClasses
         Option2 = 1,
         Option3 = 2
     }
-
 }

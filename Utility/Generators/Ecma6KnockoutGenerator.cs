@@ -206,7 +206,7 @@ namespace Utility.Generators
         private static void BuildEqualsFunctionForClass(StringBuilder sb, IEnumerable<PropertyBag> propList,
             JsGeneratorOptions options)
         {
-            //Generate an equals function for two objects
+            // Generate an equals function for two objects
             sb.AppendLine("\tthis.$equals = function (compareObj) {");
             sb.AppendLine("\t\tif (!compareObj) { return false; }");
             foreach (var propEntry in propList)

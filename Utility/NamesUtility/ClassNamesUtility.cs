@@ -11,10 +11,10 @@ namespace Utility.NamesUtility
 
         public static string StripClassName(string line)
         {
-            var startIndex = line.IndexOf("class ", StringComparison.Ordinal) + 6;
+            int startIndex = line.IndexOf("class ", StringComparison.Ordinal) + 6;
             int endIndex;
 
-            var hasCurly = line.Contains("{");
+            bool hasCurly = line.Contains("{");
             if (!hasCurly)
             {
                 endIndex = line.LastIndexOf(" ", StringComparison.Ordinal);
