@@ -7,6 +7,9 @@
  * References for BuildAssembly method with "CodeDomProvider"
  * https://msdn.microsoft.com/en-us/library/system.codedom.compiler.codedomprovider(v=vs.110).aspx?cs-save-lang=1&cs-lang=csharp#code-snippet-2
  * search for: CodeCompile method
+ *
+ *
+ * Error "error CS1056: Unexpected character '$'" was fixed installing thing mentioned here: https://stackoverflow.com/questions/59332763/why-am-i-getting-error-cs1056-unexpected-character-putting-a-mark-here
  */
 
 using System;
@@ -68,6 +71,8 @@ namespace Utility.ReflectionUtil
                 {
                     errors.AppendFormat("Line {0},{1}\t: {2}\n",
                         error.Line, error.Column, error.ErrorText);
+
+                    System.Diagnostics.Debug.WriteLine("Line {0},{1}\t: {2}\n", error.Line, error.Column, error.ErrorText);
                 }
                 throw new Exception(errors.ToString());
             }

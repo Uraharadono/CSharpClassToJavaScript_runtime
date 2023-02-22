@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -57,6 +58,9 @@ namespace CSharpToJavascriptRuntimeConverter
 
                 // Get option values for generator options
                 JsGeneratorOptions options = GetOptions();
+
+                // Before we compile stuff we need to delete pre-processor commands like "#nullable disable"
+                fileContent = fileContent.RemoveOccurrences("#");
 
                 // Create compiler and execute content of file
                 Assembly asm = BuildAssemblyUtil.CompileCode(fileContent);
